@@ -465,85 +465,7 @@ bool FCEUSS_SaveMS(EMUFILE* outstream, int compressionLevel)
 
 void FCEUSS_Save(const char *fname, bool display_message)
 {
-	EMUFILE* st = 0;
-	std::string fn;
-
-	if (geniestage==1)
-	{
-		if (display_message)
-			FCEU_DispMessage("Cannot save FCS in GG screen.",0);
-		return;
-	}
-
-	if(fname)	//If filename is given use it.
-	{
-		st = FCEUD_UTF8_fstream(fname, "wb");
-		fn.assign(fname);
-	}
-	else		//Else, generate one
-	{
-		//FCEU_PrintError("daCurrentState=%d",CurrentState);
-		fn = FCEU_MakeFName(FCEUMKF_STATE,CurrentState,0);
-
-		//backup existing savestate first
-		if (CheckFileExists(fn.c_str()) && backupSavestates)	//adelikat:  If the files exists and we are allowed to make backup savestates
-		{
-			CreateBackupSaveState(fn.c_str());		//Make a backup of previous savestate before overwriting it
-			lastSavestateMade.assign(fn);	//Remember what the last savestate filename was (for undoing later)
-			undoSS = true;					//Backup was created so undo is possible
-		}
-		else
-			undoSS = false;					//so backup made so lastSavestateMade does have a backup file, so no undo
-
-		st = FCEUD_UTF8_fstream(fn.c_str(),"wb");
-	}
-
-	if (st == NULL || st->get_fp() == NULL)
-	{
-		if (display_message)
-			FCEU_DispMessage("State %d save error.", 0, CurrentState);
-		return;
-	}
-
-	#ifdef _S9XLUA_H
-	if (!internalSaveLoad)
-	{
-		LuaSaveData saveData;
-		CallRegisteredLuaSaveFunctions(CurrentState, saveData);
-
-		std::string luaSaveFilename;
-		luaSaveFilename.assign(fn.c_str());
-		luaSaveFilename.append(".luasav");
-		if(saveData.recordList)
-		{
-			FILE* luaSaveFile = fopen(luaSaveFilename.c_str(), "wb");
-			if(luaSaveFile)
-			{
-				saveData.ExportRecords(luaSaveFile);
-				fclose(luaSaveFile);
-			}
-		}
-		else
-		{
-			unlink(luaSaveFilename.c_str());
-		}
-	}
-	#endif
-
-	if(FCEUMOV_Mode(MOVIEMODE_INACTIVE))
-		FCEUSS_SaveMS(st,-1);
-	else
-		FCEUSS_SaveMS(st,0);
-
-	delete st;
-
-	if(!fname)
-	{
-		SaveStateStatus[CurrentState] = 1;
-		if (display_message)
-			FCEU_DispMessage("State %d saved.", 0, CurrentState);
-	}
-	redoSS = false;					//we have a new savestate so redo is not possible
+	// Save states are removed from this build: nothing is ever written to disk.
 }
 
 int FCEUSS_LoadFP_old(EMUFILE* is, ENUM_SSLOADPARAMS params)
@@ -722,113 +644,8 @@ bool FCEUSS_LoadFP(EMUFILE* is, ENUM_SSLOADPARAMS params)
 
 bool FCEUSS_Load(const char *fname, bool display_message)
 {
-	fceuScopedPtr <EMUFILE> st; // fceuScopedPtr will auto delete the allocated EMUFILE at function return.
-	std::string fn;
-
-	//mbg movie - this needs to be overhauled
-	////this fixes read-only toggle problems
-	//if(FCEUMOV_IsRecording()) {
-	//	FCEUMOV_AddCommand(0);
-	//	MovieFlushHeader();
-	//}
-
-	if (geniestage == 1)
-	{
-		if (display_message)
-			FCEU_DispMessage("Cannot load FCS in GG screen.",0);
-		return false;
-	}
-	if (fname)
-	{
-		st = FCEUD_UTF8_fstream(fname, "rb");
-		fn.assign(fname);
-	}
-	else
-	{
-		fn = FCEU_MakeFName(FCEUMKF_STATE,CurrentState,fname);
-		st=FCEUD_UTF8_fstream(fn.c_str(),"rb");
-        	lastLoadstateMade.assign(fn);
-	}
-
-	if (st.get() == NULL || (st.get()->get_fp() == NULL))
-	{
-		if (display_message)
-		{
-			FCEU_DispMessage("State %d load error.", 0, CurrentState);
-			//FCEU_DispMessage("State %d load error. Filename: %s", 0, CurrentState, fn.c_str());
-		}
-		SaveStateStatus[CurrentState] = 0;
-		return false;
-	}
-
-	//If in bot mode, don't do a backup when loading.
-	//Otherwise you eat at the hard disk, since so many
-	//states are being loaded.
-	if (FCEUSS_LoadFP(st.get(), backupSavestates ? SSLOADPARAM_BACKUP : SSLOADPARAM_NOBACKUP))
-	{
-		if (fname)
-		{
-			char szFilename[260]={0};
-			splitpath(fname, 0, 0, szFilename, 0);
-			if (display_message)
-			{
-				FCEU_DispMessage("State %s loaded.", 0, szFilename);
-				//FCEU_DispMessage("State %s loaded. Filename: %s", 0, szFilename, fn.c_str());
-			}
-		}
-		else
-		{
-			if (display_message)
-			{
-				FCEU_DispMessage("State %d loaded.", 0, CurrentState);
-				//FCEU_DispMessage("State %d loaded. Filename: %s", 0, CurrentState, fn.c_str());
-			}
-			SaveStateStatus[CurrentState] = 1;
-		}
-
-		#ifdef _S9XLUA_H
-		if (!internalSaveLoad)
-		{
-			LuaSaveData saveData;
-
-			std::string luaSaveFilename;
-			luaSaveFilename.assign(fn.c_str());
-			luaSaveFilename.append(".luasav");
-			FILE* luaSaveFile = fopen(luaSaveFilename.c_str(), "rb");
-			if(luaSaveFile)
-			{
-				saveData.ImportRecords(luaSaveFile);
-				fclose(luaSaveFile);
-			}
-
-			CallRegisteredLuaLoadFunctions(CurrentState, saveData);
-		}
-		#endif
-
-#ifdef __WIN_DRIVER__
-		Update_RAM_Search(); // Update_RAM_Watch() is also called.
-#endif
-
-		//Update input display if movie is loaded
-		extern uint32 cur_input_display;
-		extern uint8 FCEU_GetJoyJoy(void);
-
-		cur_input_display = FCEU_GetJoyJoy(); //Input display should show the last buttons pressed (stored in the savestate)
-
-		return true;
-	}
-	else
-	{
-		if(!fname)
-			SaveStateStatus[CurrentState] = 1;
-
-		if (display_message)
-		{
-			FCEU_DispMessage("Error(s) reading state %d!", 0, CurrentState);
-			//FCEU_DispMessage("Error(s) reading state %d! Filename: %s", 0, CurrentState, fn);
-		}
-		return 0;
-	}
+	// Save states are removed from this build: nothing is ever read from disk.
+	return false;
 }
 
 void FCEUSS_CheckStates(void)
@@ -922,35 +739,18 @@ void AddExState(void *v, uint32 s, int type, const char *desc)
 
 void FCEUI_SelectStateNext(int n)
 {
-	if(n>0)
-		CurrentState=(CurrentState+1)%10;
-	else
-		CurrentState=(CurrentState+9)%10;
-	FCEUI_SelectState(CurrentState, 1);
+	// no save slots in this build
 }
 
 int FCEUI_SelectState(int w, int show)
 {
-	int oldstate=CurrentState;
-	FCEUSS_CheckStates();
-	if(w == -1) { StateShow = 0; return 0; } //mbg merge 7/17/06 had to make return a value
-
-	CurrentState=w;
-	if(show)
-	{
-		StateShow=180;
-		FCEU_DispMessage("-select state-",0);
-	}
-	return oldstate;
+	// no save slots in this build (and no slot overlay)
+	return CurrentState;
 }
 
 void FCEUI_SaveState(const char *fname, bool display_message)
 {
-	if(!FCEU_IsValidUI(FCEUI_SAVESTATE)) return;
-
-	StateShow = 0;
-
-	FCEUSS_Save(fname, display_message);
+	FCEU_DispMessage("Save states are disabled in this build", 0);
 }
 
 int loadStateFailed = 0; // hack, this function should return a value instead
@@ -966,64 +766,8 @@ bool file_exists(const char * filename)
 }
 void FCEUI_LoadState(const char *fname, bool display_message)
 {
-	if(!FCEU_IsValidUI(FCEUI_LOADSTATE)) return;
-
-	StateShow = 0;
-	loadStateFailed = 0;
-
-	/* For network play, be load the state locally, and then save the state to a temporary file,
-	and send that.  This insures that if an older state is loaded that is missing some
-	information expected in newer save states, desynchronization won't occur(at least not
-	from this ;)).
-	*/
-	if (backupSavestates)
-		BackupLoadState();	// If allowed, backup the current state before loading a new one
-
-	if (!movie_readonly && autoMovieBackup && freshMovie) //If auto-backup is on, movie has not been altered this session and the movie is in read+write mode
-	{
-		FCEUI_MakeBackupMovie(false);	//Backup the movie before the contents get altered, but do not display messages
-	}
-	if (fname != NULL && !file_exists(fname))
-	{
-		loadStateFailed = 1;
-		return; // state doesn't exist; exit cleanly
-	}
-
-	if (FCEUSS_Load(fname, display_message))
-	{
-		//in case we're loading a savestate made with old ppu, we need to make sure ppur's regs used for dividing are ready to go
-		newppu_hacky_emergency_reset();
-
-		//mbg todo netplay
-#if 0 
-		if(FCEUnetplay)
-		{
-			char *fn = strdup(FCEU_MakeFName(FCEUMKF_NPTEMP, 0, 0).c_str());
-			FILE *fp;
-
-			if((fp = fopen(fn," wb")))
-			{
-				if(FCEUSS_SaveFP(fp,0))
-				{
-					fclose(fp);
-					FCEUNET_SendFile(FCEUNPCMD_LOADSTATE, fn);
-				}
-				else
-				{
-					fclose(fp);
-				}
-
-				unlink(fn);
-			}
-
-			free(fn);
-		}
-#endif
-		freshMovie = false;		//The movie has been altered so it is no longer fresh
-	} else
-	{
-		loadStateFailed = 1;
-	}
+	loadStateFailed = 1; // callers (movie record-from-savestate) treat this as a failed load
+	FCEU_DispMessage("Save states are disabled in this build", 0);
 }
 
 void FCEU_DrawSaveStates(uint8 *XBuf)

@@ -1,5 +1,7 @@
 # fceux [![Build status](https://ci.appveyor.com/api/projects/status/github/TASEmulators/fceux?branch=master&svg=true)](https://ci.appveyor.com/project/zeromus/fceux)
 
+> **Unofficial build: FCEUX 2.6.6 with save states removed.** See [NOSAVE.md](NOSAVE.md) for what changed and why.
+
 An open source NES Emulator for Windows and Unix that features solid emulation accuracy and state of the art tools for power users. For some reason casual gamers use it too.
 
 ## Builds and Releases

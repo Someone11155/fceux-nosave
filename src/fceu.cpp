@@ -1311,42 +1311,14 @@ int FCEUI_PauseFramesRemaining(void)
 
 static int AutosaveCounter = 0;
 
-void UpdateAutosave(void) {
-	if (!EnableAutosave || turbo)
-		return;
-
-	char * f;
-	if (++AutosaveCounter >= AutosaveFrequency) {
-		AutosaveCounter = 0;
-		AutosaveIndex = (AutosaveIndex + 1) % AutosaveQty;
-		f = strdup(FCEU_MakeFName(FCEUMKF_AUTOSTATE, AutosaveIndex, 0).c_str());
-		FCEUSS_Save(f, false);
-		AutoSS = true;  //Flag that an auto-savestate was made
-		free(f);
-		f = NULL;
-		AutosaveStatus[AutosaveIndex] = 1;
-	}
+void UpdateAutosave(void)
+{
+	// auto-savestates are removed from this build
 }
 
-void FCEUI_RewindToLastAutosave(void) {
-	if (!EnableAutosave || !AutoSS)
-		return;
-
-	if (AutosaveStatus[AutosaveIndex] == 1) {
-		char * f;
-		f = strdup(FCEU_MakeFName(FCEUMKF_AUTOSTATE, AutosaveIndex, 0).c_str());
-		FCEUSS_Load(f);
-		free(f);
-        f = NULL;
-
-		//Set pointer to previous available slot
-		if (AutosaveStatus[(AutosaveIndex + AutosaveQty - 1) % AutosaveQty] == 1) {
-			AutosaveIndex = (AutosaveIndex + AutosaveQty - 1) % AutosaveQty;
-		}
-
-		//Reset time to next Auto-save
-		AutosaveCounter = 0;
-	}
+void FCEUI_RewindToLastAutosave(void)
+{
+	// auto-savestates are removed from this build
 }
 
 int FCEU_TextScanlineOffset(int y) {

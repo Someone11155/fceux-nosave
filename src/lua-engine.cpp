@@ -6443,7 +6443,7 @@ int FCEU_LoadLuaCode(const char *filename, const char *arg)
 		luaL_register(L, "zapper", zapperlib);
 		luaL_register(L, "input", inputlib);
 		lua_settop(L, 0); // clean the stack, because each call to luaL_register leaves a table on top (eventually overflows)
-		luaL_register(L, "savestate", savestatelib);
+		// Save states are removed from this build: the Lua savestate library is not registered.
 		luaL_register(L, "movie", movielib);
 		luaL_register(L, "gui", guilib);
 		luaL_register(L, "sound", soundlib);

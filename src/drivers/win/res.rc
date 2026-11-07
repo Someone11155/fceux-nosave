@@ -2371,17 +2371,6 @@ BEGIN
         MENUITEM "&Close",                      MENU_CLOSE_FILE
         MENUITEM "&Recent",                     MENU_RECENT_FILES
         MENUITEM SEPARATOR
-        POPUP "&Savestate"
-        BEGIN
-            MENUITEM "&Load State",                 MENU_LOADSTATE
-            MENUITEM "&Save State",                 MENU_SAVESTATE
-            MENUITEM "Load State &From...",         MENU_LOAD_STATE
-            MENUITEM "Save State &As...",           MENU_SAVE_STATE
-            MENUITEM SEPARATOR
-            MENUITEM "&Next save slot",             MENU_NEXTSAVESTATE
-            MENUITEM "&Previous save slot",         MENU_PREVIOUSSAVESTATE
-            MENUITEM "&View save slots",            MENU_VIEWSAVESLOTS
-        END
         POPUP "&Movie"
         BEGIN
             MENUITEM "Recent",                      MENU_MOVIE_RECENT
@@ -2465,12 +2454,8 @@ BEGIN
         BEGIN
             MENUITEM "&Run in Background",          MENU_RUN_IN_BACKGROUND
             MENUITEM "&Background Input",           MENU_BACKGROUND_INPUT
-            MENUITEM "&Auto-savestates",            MENU_ENABLE_AUTOSAVE
             MENUITEM "&Frame Adv. - Skip Lag",      MENU_DISPLAY_FA_LAGSKIP
-            MENUITEM "Backup Savestates",           ID_ENABLE_BACKUPSAVESTATES
-            MENUITEM "Compress Savestates",         ID_ENABLE_COMPRESSSAVESTATES
             MENUITEM "&Game Genie ROM",             MENU_GAME_GENIE
-            MENUITEM "Auto-resume old play session", ID_ENABLE_AUTORESUME
         END
         POPUP "&Display"
         BEGIN
@@ -2812,9 +2797,6 @@ BEGIN
         MENUITEM "Record Movie...",             FCEUX_CONTEXT_RECORDMOVIE
         MENUITEM "Load Last Movie",             FCEUX_CONTEXT_LOADLASTMOVIE
         MENUITEM SEPARATOR
-        MENUITEM "Undo savestate",              FCEUX_CONTEXT_UNDOSAVESTATE
-        MENUITEM "Undo loadstate",              FCEUX_CONTEXT_UNDOLOADSTATE
-        MENUITEM "Rewind to last auto-save",    FCEUX_CONTEXT_REWINDTOLASTAUTO
         MENUITEM "Screenshot",                  FCEUX_CONTEXT_SCREENSHOT
         MENUITEM SEPARATOR
         MENUITEM "Close ROM",                   FCEU_CONTEXT_CLOSEROM
@@ -2843,8 +2825,6 @@ BEGIN
             MENUITEM "&Insert[I]",                  FCEUX_CONTEXT_RECORDMODE_INSERT
         END
         MENUITEM SEPARATOR
-        MENUITEM "Undo savestate",              FCEUX_CONTEXT_UNDOSAVESTATE
-        MENUITEM "Rewind to last auto-save",    FCEUX_CONTEXT_REWINDTOLASTAUTO
         MENUITEM SEPARATOR
         MENUITEM "Help....",                    FCEU_CONTEXT_MOVIEHELP
         MENUITEM SEPARATOR
@@ -2874,9 +2854,6 @@ BEGIN
             MENUITEM "&Insert[I]",                  FCEUX_CONTEXT_RECORDMODE_INSERT
         END
         MENUITEM SEPARATOR
-        MENUITEM "Undo savestate",              FCEUX_CONTEXT_UNDOSAVESTATE
-        MENUITEM "Undo loadstate",              FCEUX_CONTEXT_UNDOLOADSTATE
-        MENUITEM "Rewind to last auto-save",    FCEUX_CONTEXT_REWINDTOLASTAUTO
         MENUITEM SEPARATOR
         MENUITEM "&Mode: Full state-movie loads", ID_CONTEXT_FULLSAVESTATES
         MENUITEM SEPARATOR
@@ -2906,8 +2883,6 @@ BEGIN
             MENUITEM "&Insert[I]",                  FCEUX_CONTEXT_RECORDMODE_INSERT
         END
         MENUITEM SEPARATOR
-        MENUITEM "Undo savestate",              FCEUX_CONTEXT_UNDOSAVESTATE
-        MENUITEM "Rewind to last auto-save",    FCEUX_CONTEXT_REWINDTOLASTAUTO
         MENUITEM SEPARATOR
         MENUITEM "Help....",                    FCEU_CONTEXT_MOVIEHELP
         MENUITEM SEPARATOR
@@ -2937,9 +2912,6 @@ BEGIN
             MENUITEM "&Insert[I]",                  FCEUX_CONTEXT_RECORDMODE_INSERT
         END
         MENUITEM SEPARATOR
-        MENUITEM "Undo savestate",              FCEUX_CONTEXT_UNDOSAVESTATE
-        MENUITEM "Undo loadstate",              FCEUX_CONTEXT_UNDOLOADSTATE
-        MENUITEM "Rewind to last auto-save",    FCEUX_CONTEXT_REWINDTOLASTAUTO
         MENUITEM SEPARATOR
         MENUITEM "&Mode: Full state-movie loads", ID_CONTEXT_FULLSAVESTATES
         MENUITEM SEPARATOR
